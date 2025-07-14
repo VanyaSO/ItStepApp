@@ -2,40 +2,26 @@
  * npx react-native run-android
  */
 
-import {  BackHandler, Pressable, StyleSheet, Text, useColorScheme, View } from 'react-native';
+import {  BackHandler, Pressable, StyleSheet, Text, View } from 'react-native';
 import Calc from '../pages/calc/Calc';
-import { SafeAreaProvider, SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { useEffect, useState } from 'react';
 import Game from '../pages/game/Game';
 import { AppContext } from '../shared/context/AppContext';
-
-function Main() {
-  const insets = useSafeAreaInsets();
-  //console.log(insets);
-  return <SafeAreaView edges={['top', 'bottom']} style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-    <Calc />
-  </SafeAreaView>;
-}
 
 function App() {
   /* Навігація у мобільних застосунках
   ідея - ведення власної історії переходу між "сторінками"
    */
-  type PageInfo = { //  /calc/scientific/hyper?arg=1234&operation=exp
-    slug: string,                // calc
-    pathParams: Array<string>,   // ["scientific", "hyper"]
-    queryParams: object,         // {arg: 1234, operation: "exp"}
-  };
 
-  const [page, setPage] = useState("calc");
+  const [page, setPage] = useState("game");
   const [history, setHistory] = useState([] as Array<string>);
 
   const navigate = (href:string) => {  // додавання до історії поточної сторінки
-    if(href == page) {                 // та перехід на нову сторінку
+    if(href === page) {                 // та перехід на нову сторінку
       return;
     }
     history.push(page);
-    console.log(history);
     setHistory(history);
     setPage(href);
   };
@@ -43,7 +29,6 @@ function App() {
   const popRoute = () => {            // рух назад по історії (кнопка "<-")
     if(history.length > 0) {
       const page = history.pop() ?? "calc";
-      console.log(history);
       setHistory(history);
       setPage(page);
     }
@@ -69,8 +54,8 @@ function App() {
       {/* передаємо navigate через контекст на всі дочірні елементи*/}
       <AppContext.Provider value={{navigate}}>
         <View style={styles.content}>
-          { page == "calc" ? <Calc />
-            : <Game />
+          { page === "calc" ? <Calc />
+              : <Game />
           }
         </View>
 
