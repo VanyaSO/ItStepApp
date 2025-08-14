@@ -5,16 +5,23 @@ import {
   TextInput,
   TouchableOpacity,
   View,
+  Text
 } from 'react-native';
 import { useEffect, useState } from 'react';
 import rateItem from './components/rateItem.tsx';
 import { NbuRate } from './types/NbuRate.ts';
 import { RatesModel } from './models/RatesModel.ts';
+import DateTimePicker, { DateType, useDefaultStyles } from 'react-native-ui-datepicker';
+import dayjs from 'dayjs';
 
 export default function Rates() {
   const [rates, setRates] = useState<Array<NbuRate>>([]);
   const [showRates, setShowRates] = useState<Array<NbuRate>>([]);
   const [searchValue, setSearchValue] = useState<string>('');
+  const [isCalendarVisible, setCalendarVisible] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<DateType>();
+
+  const defaultStyles = useDefaultStyles();
 
   useEffect(() => {
     if (RatesModel.instance.rates.length === 0) {
@@ -24,6 +31,7 @@ export default function Rates() {
         .then(j => {
           console.log('Loaded data');
           RatesModel.instance.rates = j;
+          RatesModel.instance.selectedDate = dayjs()
           setRates(j);
         });
     } else {
@@ -31,6 +39,7 @@ export default function Rates() {
       setRates(RatesModel.instance.rates);
       setShowRates(RatesModel.instance.showRates);
       setSearchValue(RatesModel.instance.searchValue);
+      setSelectedDate(RatesModel.instance.selectedDate);
     }
   }, []);
 
@@ -50,8 +59,27 @@ export default function Rates() {
     RatesModel.instance.searchValue = searchValue;
   }, [searchValue, rates]);
 
+  useEffect(() => {
+    fetch(`https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=${dayjs(selectedDate).format('YYYYMMDD')}&json`)
+        .then(res => res.json())
+        .then(data => {
+          RatesModel.instance.rates = data;
+          setRates(data);
+        })
+    RatesModel.instance.selectedDate = selectedDate;
+  }, [selectedDate]);
+
+  const changeDate = () => {
+    setCalendarVisible(true);
+  };
+
   return (
     <View style={styles.container}>
+      <View>
+        <TouchableOpacity onPress={changeDate}>
+          <Text>{dayjs(selectedDate).format('DD.MM.YYYY')}</Text>
+        </TouchableOpacity>
+      </View>
       <View style={styles.searchBar}>
         <TextInput
           style={styles.searchInput}
@@ -64,6 +92,18 @@ export default function Rates() {
             style={styles.searchButtonImg}
           />
         </TouchableOpacity>
+      </View>
+      <View style={{display: isCalendarVisible ? "contents":"none"}}>
+        <DateTimePicker
+            mode="single"
+            date={selectedDate}
+            onChange={({ date }) => {
+              setSelectedDate(date);
+              setCalendarVisible(false);
+            }}
+            styles={defaultStyles}
+            maxDate={dayjs()}
+        />
       </View>
       <FlatList
         data={showRates}

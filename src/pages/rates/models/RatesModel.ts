@@ -1,16 +1,18 @@
-import {NbuRate} from "../types/NbuRate.ts";
+import { NbuRate } from '../types/NbuRate.ts';
+import { DateType } from 'react-native-ui-datepicker';
 
 export class RatesModel {
-    static #instance: RatesModel | null = null;
-    static get instance(): RatesModel {
-        if (RatesModel.#instance == null) {
-            RatesModel.#instance = new RatesModel();
-        }
+  static #instance: RatesModel | null = null;
+  rates: Array<NbuRate> = [];
+  showRates: Array<NbuRate> = [];
+  searchValue: string = '';
+  selectedDate: DateType;
 
-        return RatesModel.#instance;
+  static get instance(): RatesModel {
+    if (RatesModel.#instance == null) {
+      RatesModel.#instance = new RatesModel();
     }
 
-    rates: Array<NbuRate> = [];
-    showRates: Array<NbuRate> = [];
-    searchValue: string = '';
+    return RatesModel.#instance;
+  }
 }
