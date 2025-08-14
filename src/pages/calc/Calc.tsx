@@ -1,6 +1,7 @@
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import CalcButton from './components/CalcButton';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { CalcModel } from './models/RatesModel.ts';
 
 const maxResultDigits = 5;
 
@@ -12,6 +13,33 @@ export default function Calc() {
   const [operation, setOperation] = useState<string | null>(null);
   const [isSecondOperand, setIsSecondOperand] = useState(false);
   const { width, height } = useWindowDimensions();
+
+  useEffect(() => {
+    if (CalcModel.instance.result !== '0') {
+      setResult(CalcModel.instance.result);
+      setExpression(CalcModel.instance.expression);
+      setFirstOperand(CalcModel.instance.firstOperand);
+      setSecondOperand(CalcModel.instance.secondOperand);
+      setOperation(CalcModel.instance.operation);
+      setIsSecondOperand(CalcModel.instance.isSecondOperand);
+    }
+  }, []);
+
+  useEffect(() => {
+    CalcModel.instance.result = result;
+    CalcModel.instance.expression = expression;
+    CalcModel.instance.firstOperand = firstOperand;
+    CalcModel.instance.secondOperand = secondOperand;
+    CalcModel.instance.operation = operation;
+    CalcModel.instance.isSecondOperand = isSecondOperand;
+  }, [
+    result,
+    expression,
+    firstOperand,
+    secondOperand,
+    operation,
+    isSecondOperand,
+  ]);
 
   const calculate = (a: number, b: number, op: string): number => {
     switch (op) {
@@ -50,6 +78,7 @@ export default function Calc() {
           setResult(result.substring(0, result.length - 1));
         } else {
           setResult('0');
+          setExpression('')
         }
         break;
       case 'clear':
@@ -240,7 +269,7 @@ export default function Calc() {
         >
           <View style={{ flex: 2, display: 'flex', flexDirection: 'column' }}>
             <Text style={[styles.title, { margin: 0 }]}>Калькулятор</Text>
-            <Text style={styles.expression}>22 + 33 =</Text>
+            <Text style={styles.expression}>{expression}</Text>
           </View>
 
           <Text style={[styles.result, { flex: 3 }]}>{result}</Text>
