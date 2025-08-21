@@ -1,6 +1,5 @@
 import { Animated, Pressable, StyleSheet, Text, TouchableWithoutFeedback, useWindowDimensions, View } from "react-native";
-import { AppContext } from "../../shared/context/AppContext";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Orientation from "react-native-orientation-locker";
 import RNFS from "react-native-fs";
 
@@ -83,7 +82,7 @@ export default function Game() {
         }
     }, [score]);
 
-    useEffect(() => {        
+    useEffect(() => {
         saveBestScore();
     }, [bestScore]);
 
@@ -143,7 +142,7 @@ export default function Game() {
                         }
                         else {
                             setText("Right - NO MOVE");
-                        }                        
+                        }
                     }
                     else {
                         if( moveLeft() ) {
@@ -153,7 +152,7 @@ export default function Game() {
                         }
                         else {
                             setText("Left - NO MOVE");
-                        }     
+                        }
                     }
                 }
             }
@@ -219,11 +218,11 @@ export default function Game() {
         const N = 4;
         let res = false;
         for(let r = 0; r < N; r += 1) {
-            for(let i = 1; i < N; i += 1) {                                    
-                for(let c = 0; c < N - 1; c += 1 ) { 
-                    if( tiles[r*N + c + 1] != 0 && tiles[r*N + c] == 0 ) {     
-                        tiles[r*N + c] = tiles[r*N + c + 1];                   
-                        tiles[r*N + c + 1] = 0;                                    
+            for(let i = 1; i < N; i += 1) {
+                for(let c = 0; c < N - 1; c += 1 ) {
+                    if( tiles[r*N + c + 1] != 0 && tiles[r*N + c] == 0 ) {
+                        tiles[r*N + c] = tiles[r*N + c + 1];
+                        tiles[r*N + c + 1] = 0;
                         res = true;
                     }
                 }
@@ -234,15 +233,15 @@ export default function Game() {
                     tiles[r*N+c] *= 2;
                     tiles[r*N+c+1] = 0;
                     setScore(score + tiles[r*N+c]);
-                    
+
                     res = true;
                 }
             }
 
             for(let i = 1; i < N; i += 1) {
-                for(let c = 0; c < N - 1; c += 1 ) { 
-                    if( tiles[r*N + c + 1] != 0 && tiles[r*N + c] == 0 ) {     
-                        tiles[r*N + c] = tiles[r*N + c + 1];                   
+                for(let c = 0; c < N - 1; c += 1 ) {
+                    if( tiles[r*N + c + 1] != 0 && tiles[r*N + c] == 0 ) {
+                        tiles[r*N + c] = tiles[r*N + c + 1];
                         tiles[r*N + c + 1] = 0;
                     }
                 }
@@ -252,7 +251,7 @@ export default function Game() {
     };
 
     const canMoveRight = () => {
-        for(let r = 0; r < N; r += 1) {       // row index  
+        for(let r = 0; r < N; r += 1) {       // row index
             for(let c = 1; c < N; c += 1 ) {  // column index
                 if( tiles[r*N + c - 1] != 0 && (
                         tiles[r*N + c - 1] == tiles[r*N + c] || tiles[r*N + c] == 0 )
@@ -272,8 +271,8 @@ export default function Game() {
         var collapsedIndexes = [];
         for(let r = 0; r < N; r += 1) {       // row index                     // [2400]
             // 1. Move right
-            for(let i = 1; i < N; i += 1) {                                    // 
-                for(let c = 0; c < N - 1; c += 1 ) {  // column index          // 
+            for(let i = 1; i < N; i += 1) {                                    //
+                for(let c = 0; c < N - 1; c += 1 ) {  // column index          //
                     if( tiles[r*N + c] != 0 && tiles[r*N + c + 1] == 0 ) {     // [2040] [2004]
                         tiles[r*N + c + 1] = tiles[r*N + c];                   // [0204] [0024]
                         tiles[r*N + c] = 0;
@@ -296,15 +295,15 @@ export default function Game() {
                 for(let c = 0; c < N - 1; c += 1 ) {
                     if( tiles[r*N + c] != 0 && tiles[r*N + c + 1] == 0 ) {
                         let index = collapsedIndexes.indexOf(r*N + c);
-                        tiles[r*N + c + 1] = tiles[r*N + c];              
-                        tiles[r*N + c] = 0;  
-                        collapsedIndexes[index] = r*N + c + 1;                             
+                        tiles[r*N + c + 1] = tiles[r*N + c];
+                        tiles[r*N + c] = 0;
+                        collapsedIndexes[index] = r*N + c + 1;
                     }
                 }
             }
         }
         if(collapsedIndexes.length > 0) {
-            Animated.parallel( collapsedIndexes.map(index => 
+            Animated.parallel( collapsedIndexes.map(index =>
                 Animated.sequence([
                     Animated.timing(scaleValues[index], {
                         toValue: 1.2,
@@ -332,7 +331,7 @@ export default function Game() {
                         <Text style={styles.topBlockScoreText}>SCORE</Text>
                         <Text style={styles.topBlockScoreText}>{score}</Text>
                     </View>
-                    
+
                     <View style={styles.topBlockScore}>
                         <Text style={styles.topBlockScoreText}>BEST</Text>
                         <Text style={styles.topBlockScoreText}>{bestScore}</Text>
@@ -349,7 +348,7 @@ export default function Game() {
         <Text>
             Join the numbers and get to the 2048 tile!
         </Text>
-        
+
         <TouchableWithoutFeedback
                 onPressIn = {e => {startData = {
                     x: e.nativeEvent.pageX,
@@ -360,10 +359,10 @@ export default function Game() {
                     x: e.nativeEvent.pageX,
                     y: e.nativeEvent.pageY,
                     t: e.nativeEvent.timestamp
-                })}> 
+                })}>
 
             <View style={[styles.field, {width: width * 0.95, height: width * 0.95}]}>
-                {tiles.map((tile, index) => <Animated.View key={index} 
+                {tiles.map((tile, index) => <Animated.View key={index}
                     style={{
                         opacity: opacityValues[index],
                         transform: [{scale: scaleValues[index]}]
@@ -385,7 +384,7 @@ export default function Game() {
         <Animated.View style={{opacity: animValue}}>
             <Text>{text}</Text>
         </Animated.View>
-        
+
     </View>
     ;
 }

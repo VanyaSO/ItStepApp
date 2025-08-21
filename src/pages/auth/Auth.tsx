@@ -4,12 +4,33 @@ import FirmButton from '../../features/buttons/ui/FirmButton';
 import { ButtonTypes } from '../../features/buttons/model/ButtonTypes';
 import { AppContext } from '../../shared/context/AppContext';
 import { Buffer } from 'buffer';
+import RNFS from "react-native-fs";
+import CheckBox from "@react-native-community/checkbox";
+
+const tokenPath = '/auth.token'
 
 export default function Auth() {
   const { request, user, setUser, showModal } = useContext(AppContext);
   const [login, setLogin] = useState('');
   const [password, setPassword] = useState('');
   const [userName, setUserName] = useState(null as string | null);
+  const [isRemember, setRemember] = useState(false);
+
+  useEffect(() => {
+    const loadToken = async () => {
+      const path = RNFS.DocumentDirectoryPath + tokenPath;
+      const jwt = await RNFS.readFile(path, 'utf8').catch(() => null);
+
+      if (jwt) {
+        setUser(
+            JSON.parse(Buffer.from(jwt.split('.')[1], 'base64').toString('utf8')),
+        );
+      }
+    };
+
+    loadToken();
+  }, []);
+
 
   useEffect(() => {
     setUserName(user === null ? null : user.nam);
@@ -38,6 +59,9 @@ export default function Auth() {
           Buffer.from(`${login}:${password}`, 'utf-8').toString('base64'),
       },
     }).then(jwt => {
+      if (isRemember) {
+        saveToken(jwt);
+      }
       setUser(
         JSON.parse(Buffer.from(jwt.split('.')[1], 'base64').toString('utf8')),
       );
@@ -50,9 +74,21 @@ export default function Auth() {
 
   const onExitPress = () => {
     setUser(null);
+
+    const path = RNFS.DocumentDirectoryPath + tokenPath;
+    RNFS.unlink(path)
+        .catch(err => {
+          console.error('Error delete file', err);
+        });
   };
 
   const isFormValid = () => login.length > 1 && password.length > 2;
+
+  const saveToken = (token: string) => {
+    const path = RNFS.DocumentDirectoryPath + tokenPath;
+    return RNFS.writeFile(path, token.toString(), 'utf8');
+  }
+
 
   const anonView = () => (
     <View>
@@ -75,6 +111,15 @@ export default function Auth() {
           value={password}
           onChangeText={setPassword}
         />
+      </View>
+
+      <View style={styles.checkboxContainer}>
+        <CheckBox
+            value={isRemember}
+            onValueChange={setRemember}
+            style={styles.checkbox}
+        />
+        <Text style={styles.checkboxLabel}>Запам'ятати мене</Text>
       </View>
       <FirmButton
           type={isFormValid() ? ButtonTypes.primary : ButtonTypes.secondary}
@@ -123,5 +168,16 @@ const styles = StyleSheet.create({
     color: "#eee",
     marginLeft: 10,
     marginTop: 10,
-  }
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    marginBottom: 20,
+  },
+  checkbox: {
+    alignSelf: 'center',
+  },
+  checkboxLabel: {
+    margin: 8,
+    color: "#eee",
+  },
 });
